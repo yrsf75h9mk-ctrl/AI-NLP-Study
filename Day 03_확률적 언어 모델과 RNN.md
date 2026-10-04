@@ -96,25 +96,11 @@ $$
 
 이를 해결하기 위해 **조건부 확률의 곱**으로 문장 전체의 확률을 분해한다.
 
-$$
-P(w_0,w_1,\cdots,w_n)
-=
-P(w_0)
-P(w_1|w_0)
-P(w_2|w_0,w_1)
-\cdots
-P(w_n|w_0,\cdots,w_{n-1})
-$$
+$P(w_0,w_1,\cdots,w_n)=P(w_0)P(w_1 \mid w_0)P(w_2 \mid w_0,w_1)P(w_n \mid w_0,\cdots,w_{n-1})$
 
 일반적으로는 다음과 같이 표현할 수 있다.
 
-$$
-P(W)
-=
-P(w_0)
-\prod_{t=1}^{n}
-P(w_t|w_0,\cdots,w_{t-1})
-$$
+$P(W)=P(w_0)\prod_{t=1}^{n}P(w_t \mid w_0,\cdots,w_{t-1})$
 
 즉,
 
@@ -375,23 +361,12 @@ NPLM의 한계를 해결하기 위해 **RNN(Recurrent Neural Network)**&#xC774; 
 
 ---
 
-## 8.1 RNN의 구조
+## 8.1 RNN의 동작
 
 각 시점에서 입력 `x_t`와 이전 hidden state `h_{t-1}`을 이용하여 새로운 hidden state `h_t`를 계산한다.
 
-$$
-h_t
-=
-\tanh(W_{xh}x_t + W_{hh}h_{t-1}+b_h)
-$$
+$h_t=\mathrm{tanh}(W_h\cdot h_{t-1}+W_x\cdot x_t)$
 
-그리고 출력은
-
-$$
-y_t = f(W_{hy}h_t+b_y)
-$$
-
-와 같이 계산할 수 있다.
 
 ### 흐름
 
@@ -457,26 +432,17 @@ RNN에서는 역전파를 수행할 때 여러 시점을 거슬러 올라가면�
 
 개념적으로,
 
-$$
-\frac{\partial h_t}{\partial h_{t-1}}
-$$
+$\frac{\partial h_t}{\partial h_{t-1}}$
 
 가 여러 번 곱해지면서
 
-$$
-\frac{\partial h_t}{\partial h_0}
-=
-\prod_{k=1}^{t}
-\frac{\partial h_k}{\partial h_{k-1}}
-$$
+$\frac{\partial h_t}{\partial h_0}=\prod_{k=1}^{t}\frac{\partial h_k}{\partial h_{k-1}}$
 
 와 같은 형태가 된다.
 
 만약 각 항의 값이 1보다 작다면,
 
-$$
-0.5 \times 0.5 \times 0.5 \times \cdots
-$$
+$0.5 \times 0.5 \times 0.5 \times \cdots$
 
 처럼 반복해서 곱해지면서 값이 매우 작아질 수 있다.
 
@@ -512,94 +478,13 @@ LSTM은 정보를 무조건 계속 저장하는 것이 아니라,
 
 ---
 
-# 11. LSTM의 3가지 Gate
-
-LSTM에는 대표적으로 세 가지 gate가 있다.
-
-### ① Forget Gate
-
-이전 Cell State에서 어떤 정보를 버릴지 결정한다.
-
-$$
-f_t
-=
-\sigma(W_f[h_{t-1},x_t]+b_f)
-$$
-
-* `f_t ≈ 0` → 해당 정보를 잊음
-* `f_t ≈ 1` → 해당 정보를 유지
-
----
-
-### ② Input Gate
-
-현재 입력 중 어떤 정보를 Cell State에 저장할지 결정한다.
-
-$$
-i_t
-=
-\sigma(W_i[h_{t-1},x_t]+b_i)
-$$
-
-새롭게 추가할 후보 정보는
-
-$$
-\tilde{C}_t
-=
-\tanh(W_C[h_{t-1},x_t]+b_C)
-$$
-
-로 계산한다.
-
-Cell State는
-
-$$
-C_t
-=
-f_t \odot C_{t-1}
-+
-i_t \odot \tilde{C}_t
-$$
-
-로 업데이트된다.
-
----
-
-### ③ Output Gate
-
-Cell State 중 어떤 정보를 현재 hidden state로 출력할지 결정한다.
-
-$$
-o_t
-=
-\sigma(W_o[h_{t-1},x_t]+b_o)
-$$
-
-그리고
-
-$$
-h_t
-=
-o_t \odot \tanh(C_t)
-$$
-
-가 된다.
-
----
-
-# 12. LSTM이 Gradient Vanishing을 완화하는 이유
+# 11. LSTM이 Gradient Vanishing을 완화하는 이유
 
 LSTM의 중요한 특징은 Cell State를 통한 **비교적 직접적인 정보 전달 경로**이다.
 
 Cell State 업데이트를 다시 보면,
 
-$$
-C_t
-=
-f_t \odot C_{t-1}
-+
-i_t \odot \tilde{C}_t
-$$
+$C_t=f_t \odot C_{t-1}+i_t \odot \tilde{C}_t$
 
 여기에는 **덧셈 연산**이 포함되어 있다.
 
